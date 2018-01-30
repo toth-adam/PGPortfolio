@@ -18,9 +18,9 @@ class NNAgent:
         self.__train_operation = None
         self.__y = tf.placeholder(tf.float32, shape=[None,
                                                      self.__config["input"]["feature_number"],
-                                                     self.__coin_number])
+                                                     self.__coin_number], name="y")
         self.__future_price = tf.concat([tf.ones([self.__net.input_num, 1]),
-                                       self.__y[:, 0, :]], 1)
+                                       self.__y[:, 0, :]], 1, name="future_price")
         self.__future_omega = (self.__future_price * self.__net.output) /\
                               tf.reduce_sum(self.__future_price * self.__net.output, axis=1)[:, None]
         # tf.assert_equal(tf.reduce_sum(self.__future_omega, axis=1), tf.constant(1.0))
@@ -95,7 +95,9 @@ class NNAgent:
                    LAMBDA * tf.reduce_mean(tf.reduce_sum(-tf.log(1 + 1e-6 - self.__net.output), reduction_indices=[1]))
 
         def loss_function6():
-            return -tf.reduce_mean(tf.log(self.pv_vector))
+            with tf.variable_scope("loss_function"):
+                loss = -tf.reduce_mean(tf.log(self.pv_vector))
+            return loss
 
         def loss_function7():
             return -tf.reduce_mean(tf.log(self.pv_vector)) + \

@@ -159,13 +159,23 @@ class DataMatrices:
     def __pack_samples(self, indexs):
         indexs = np.array(indexs)
         last_w = self.__PVM.values[indexs-1, :]
-
+        # last_w: len(indexs), asset_number
         def setw(w):
             self.__PVM.iloc[indexs, :] = w
         M = [self.get_submatrix(index) for index in indexs]
+        # Az M shape-je (len(indexes), feature_number, asset_number, window_size+1)
+        # indexes: hanyadik pontok a train vagy test adatban. Az indexes default esetben (365+366)*48+1, A train és test adatokat, ha felosztjuk 0.92-0.08 arányban
+        # az azt jelenti, hogy az adatpontok első 92%-át trainre, maradék 8%-át testre használjuk
+        # feature_number: close, high, low,
+        # asset_number: coinok száma
+        # window_size+1: a window size a paperben asszem a kis n.
         M = np.array(M)
+        # Az X a hálóbemenetek; ez kb. ugyanaz, mint M csak minden window esetén eldobjuk azt a +1-et
         X = M[:, :, :, :-1]
-        y = M[:, :, :, -1] / M[:, 0, None, :, -2]
+        # Ezért kell window_size+1-nyit kivenni, mert itt használjuk az ucsó elemet, ezzel számoljuk ki y-t
+        y = M[:, :, :, -1] / M[:, 0, None, :, -2]   # A per jel után óriási numpy magic: a None-nal mintha expand_dims
+        # -et nyomna (np.newaxis) -- az egész azért van, mert ahogy az y-t ki kll számolni (1es képlet)
+        # y shape-je (len(indexes), feature_umber, asset_number)
         return {"X": X, "y": y, "last_w": last_w, "setw": setw}
 
     # volume in y is the volume in next access period

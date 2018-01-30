@@ -36,6 +36,7 @@ class ReplayBuffer:
     def next_experience_batch(self):
         # First get a start point randomly
         batch = []
+        # A permed itt számít, majd lefejtjük mit jelent
         if self.__is_permed:
             for i in range(self.__batch_size):
                 batch.append(self.__experiences[self.__sample(self.__experiences[0].state_index,

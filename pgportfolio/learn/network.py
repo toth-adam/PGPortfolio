@@ -15,9 +15,10 @@ class NeuralNetWork:
             tf_config.gpu_options.per_process_gpu_memory_fraction = 0
         else:
             tf_config.gpu_options.per_process_gpu_memory_fraction = 0.2
-        self.input_num = tf.placeholder(tf.int32, shape=[])
-        self.input_tensor = tf.placeholder(tf.float32, shape=[None, feature_number, rows, columns])
-        self.previous_w = tf.placeholder(tf.float32, shape=[None, rows])
+        self.input_num = tf.placeholder(tf.int32, shape=[], name="input_number")
+        self.input_tensor = tf.placeholder(tf.float32, shape=[None, feature_number, rows, columns],
+                                           name="input_tensorX")
+        self.previous_w = tf.placeholder(tf.float32, shape=[None, rows], name="previous_w")
         self._rows = rows
         self._columns = columns
         self.output = self._build_network(layers)
@@ -53,7 +54,8 @@ class CNN(NeuralNetWork):
                                                  "valid",
                                                  layer["activation_function"],
                                                  regularizer=layer["regularizer"],
-                                                 weight_decay=layer["weight_decay"])
+                                                 weight_decay=layer["weight_decay"],
+                                                 name="EIIE_Dense")
             elif layer["type"] == "ConvLayer":
                 network = tflearn.layers.conv_2d(network, int(layer["filter_number"]),
                                                  allint(layer["filter_shape"]),
@@ -61,7 +63,8 @@ class CNN(NeuralNetWork):
                                                  layer["padding"],
                                                  layer["activation_function"],
                                                  regularizer=layer["regularizer"],
-                                                 weight_decay=layer["weight_decay"])
+                                                 weight_decay=layer["weight_decay"],
+                                                 name="ConvLayer")
             elif layer["type"] == "MaxPooling":
                 network = tflearn.layers.conv.max_pool_2d(network, layer["strides"])
             elif layer["type"] == "AveragePooling":
@@ -88,20 +91,21 @@ class CNN(NeuralNetWork):
                 width = network.get_shape()[2]
                 height = network.get_shape()[1]
                 features = network.get_shape()[3]
-                network = tf.reshape(network, [self.input_num, int(height), 1, int(width*features)])
-                w = tf.reshape(self.previous_w, [-1, int(height), 1, 1])
-                network = tf.concat([network, w], axis=3)
+                network = tf.reshape(network, [self.input_num, int(height), 1, int(width*features)], name="reshape")
+                w = tf.reshape(self.previous_w, [-1, int(height), 1, 1], name="prev_w_reshape")
+                network = tf.concat([network, w], axis=3, name="concat_network_prev_w")
                 network = tflearn.layers.conv_2d(network, 1, [1, 1], padding="valid",
                                                  regularizer=layer["regularizer"],
-                                                 weight_decay=layer["weight_decay"])
+                                                 weight_decay=layer["weight_decay"],
+                                                 name="fully_donnected")
                 network = network[:, :, 0, 0]
                 #btc_bias = tf.zeros((self.input_num, 1))
                 btc_bias = tf.get_variable("btc_bias", [1, 1], dtype=tf.float32,
                                        initializer=tf.zeros_initializer)
-                btc_bias = tf.tile(btc_bias, [self.input_num, 1])
-                network = tf.concat([btc_bias, network], 1)
+                btc_bias = tf.tile(btc_bias, [self.input_num, 1], name="btc_bias_tile")
+                network = tf.concat([btc_bias, network], 1, name="concat_tiled_btc_bias")
                 self.voting = network
-                network = tflearn.layers.core.activation(network, activation="softmax")
+                network = tflearn.layers.core.activation(network, activation="softmax", name="softmax")
 
             elif layer["type"] == "EIIE_LSTM" or\
                             layer["type"] == "EIIE_RNN":
