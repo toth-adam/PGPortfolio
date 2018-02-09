@@ -188,6 +188,7 @@ class HistoryManager:
             connection.close()
 
     def __fill_data(self, start, end, coin, cursor):
+        # ide kell beleirni, hogy 1000-es rate limittel lejojjon az adat
         chart = self._coin_list.get_chart_until_success(
             pair=self._coin_list.allActiveCoins.at[coin, 'pair'],
             start=start,

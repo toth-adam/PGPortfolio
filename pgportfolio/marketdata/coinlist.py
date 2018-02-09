@@ -15,16 +15,15 @@ class CoinList(object):
         self.volume_average_days = volume_average_days
         self.volume_forward = volume_forward
 
-        self.isPolo = 1
+        self.is_polo = 0
 
-        if self.isPolo:
+        if self.is_polo:
             coins, pairs, volumes, prices = self.poloniex_coin_list()
         else:
             coins, pairs, volumes, prices = self.hitbtc_coin_list()
 
 
         self._df = pd.DataFrame({'coin': coins, 'pair': pairs, 'volume': volumes, 'price':prices})
-        print(self._df)
         self._df = self._df.set_index('coin')
 
     def poloniex_coin_list(self):
@@ -114,10 +113,15 @@ class CoinList(object):
     def __get_total_volume(self, pair, global_end, days, forward):
         start = global_end-(DAY*days)-forward
         end = global_end-forward
-        chart = self.get_chart_until_success(pair=pair, period=DAY, start=start, end=end)
+        # 30 napnyi candle adat, napi bontasban, ez a 30 nap benne van a net_configban
+        if self.is_polo:
+            chart = self.get_chart_until_success(pair=pair, period=DAY, start=start, end=end)
+        else:
+            # end=limit, amennyi a limit annyiszor 1 napos bontasu adatot szed le a start timetol kezdve
+            chart = self.get_chart_until_success(pair=pair, period=DAY, start=start, end=days-1)
         result = 0
         for one_day in chart:
-            if pair.startswith("BTC_"):
+            if pair.startswith("BTC_"): # or pair.startswith("BTC/"):
                 result += one_day['volume']
             else:
                 result += one_day["quoteVolume"]

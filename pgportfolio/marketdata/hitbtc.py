@@ -56,7 +56,7 @@ class Hitbtc:
         self.marketOrders = lambda pair='all', depth=10:\
             self.api('returnOrderBook', {'currencyPair':pair, 'depth':depth})
         # self.marketChart = lambda pair, period=day, start=time.time()-(week*1), end=time.time(): self.api('returnChartData', {'currencyPair':pair, 'period':period, 'start':start, 'end':end})
-        self.marketChart = lambda pair, period=day, start=time.time()-(week*1), end=time.time(): self.api.fetch_ohlcv(pair, )
+        self.marketChart = lambda pair, period="1d", start=time.time()-(week*1), end=1: self.fetch_chart_data(pair, period, start, end)
         self.marketTradeHist = lambda pair: self.api('returnTradeHistory',{'currencyPair':pair}) # NEEDS TO BE FIXED ON Poloniex
 
     def fetch_tickers(self):
@@ -73,4 +73,27 @@ class Hitbtc:
                 volume_tuple_list = filter(lambda x: x[0] == "baseVolume" or x[0] == "quoteVolume", v.items())
                 volumes[k] = dict((pairs[0] if b == "baseVolume" else pairs[1], q) for b, q in volume_tuple_list)
 
-        return volumes
+        _volumes = {}
+
+        for k, v in volumes.items():
+            for x, y in v.items():
+                if y:
+                    _volumes[k] = v
+
+        return _volumes
+
+    def fetch_chart_data(self, pair, period, start, end):
+
+        periods_dict = {
+            86400: "1d",
+            300: "5m",
+            1800: "30m"
+        }
+
+        period = periods_dict[period]
+
+        feature_names_list = ["timestamp", "open", "max", "min", "close", "quoteVolume"]
+        raw_ohlcv = self.api.fetchOhlcv(pair, period, start, end)
+        parsed_ohlcv = list(map(lambda day: {feature_names_list[i]: feature for i, feature in enumerate(day)}, raw_ohlcv))
+
+        return parsed_ohlcv
