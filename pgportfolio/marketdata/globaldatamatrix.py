@@ -221,12 +221,12 @@ class HistoryManager:
                 if 'reversed_' in coin:
                     cursor.execute('INSERT INTO History VALUES (?,?,?,?,?,?,?,?,?)',
                         (c['date'],coin,1.0/c['low'],1.0/c['high'],1.0/c['open'],
-                        1.0/c['close'],c['quoteVolume'],c['quoteVolume'],
+                        1.0/c['close'],c['quoteVolume'],c['volume'],
                         1.0/weightedAverage))
                 else:
                     cursor.execute('INSERT INTO History VALUES (?,?,?,?,?,?,?,?,?)',
                                    (c['date'],coin,c['high'],c['low'],c['open'],
-                                    c['close'],c['quoteVolume'],c['quoteVolume'],
+                                    c['close'],c['volume'],c['quoteVolume'],
                                     weightedAverage))
 
                 # if 'reversed_' in coin:
