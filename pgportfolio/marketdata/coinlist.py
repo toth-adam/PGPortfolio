@@ -81,12 +81,13 @@ class CoinList(object):
                 pairs.append(k)
                 for c, val in v.items():
                     if c != 'BTC':
+                        # BREKO: ez itt nalunk meg van forditva, nalunk minden valami/BTC kiveve BTC/USDT
                         if k.endswith('/BTC'):
-                            coins.append('reversed_' + c)
-                            prices.append(1.0 / float(ticker[k]['last']))
-                        else:
                             coins.append(c)
                             prices.append(float(ticker[k]['last']))
+                        else:
+                            coins.append('reversed_' + c)
+                            prices.append(1.0 / float(ticker[k]['last']))
                     else:
                         volumes.append(self.__get_total_volume(pair=k, global_end=self.end,
                                                                days=self.volume_average_days,
