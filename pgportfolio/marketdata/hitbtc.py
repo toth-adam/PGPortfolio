@@ -1,7 +1,7 @@
 import json
 import time
 from datetime import datetime
-import ccxt
+from pgportfolio.ccxt.hitbtc import HitbtcCustom
 
 from urllib.request import Request, urlopen
 from urllib.parse import urlencode
@@ -32,11 +32,13 @@ PUBLIC_COMMANDS = ['fetch_tickers',
                    'returnCurrencies',
                    'returnLoanOrders']
 
+
 class Hitbtc:
+
     def __init__(self, APIKey='', Secret=''):
         self.APIKey = APIKey.encode()
         self.Secret = Secret.encode()
-        self.api = ccxt.hitbtc2({'verbose': True})
+        self.api = HitbtcCustom({'verbose': True})
 
         self.tickers = None
 
@@ -98,7 +100,7 @@ class Hitbtc:
     def fetch_chart_data(self, pair, period, start, end):
 
         # ez itt lehet, hogy kurvaszar, quoteVolume vagy volume?
-        feature_names_list = ["date", "open", "high", "low", "close", "quoteVolume"]
+        feature_names_list = ["date", "open", "high", "low", "close", "quoteVolume", "volume"]
         periods_dict = {
             86400: "1d",
             300: "5m",
@@ -124,7 +126,7 @@ class Hitbtc:
                 current_start = current_start + (HITBTC_RATE_LIMIT) * period
                 if number_of_requests == 0:
                     if REMAINDER > 0:
-                        remainder_raw_ohlcv = self.api.fetch_ohlcv(pair, string_period, start, REMAINDER)
+                        remainder_raw_ohlcv = self.api.fetch_ohlcv(pair, string_period, current_start, REMAINDER)
                         current_parsed_ohlcv = list(map(
                             lambda current_period: {feature_names_list[i]: feature for i, feature in
                                                     enumerate(current_period)}, remainder_raw_ohlcv))
