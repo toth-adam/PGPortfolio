@@ -1,15 +1,10 @@
-# import json
+import json
 import time
-# import sys
 from datetime import datetime
 import ccxt
 
-# if sys.version_info[0] == 3:
-#     from urllib.request import Request, urlopen
-#     from urllib.parse import urlencode
-# else:
-#     from urllib2 import Request, urlopen
-#     from urllib import urlencode
+from urllib.request import Request, urlopen
+from urllib.parse import urlencode
 
 minute = 60
 hour = minute*60
@@ -17,6 +12,8 @@ day = hour*24
 week = day*7
 month = day*30
 year = day*365
+
+HITBTC_RATE_LIMIT = 1000
 
 # Possible Commands
 # PUBLIC_COMMANDS = ['returnTicker',
@@ -59,6 +56,22 @@ class Hitbtc:
         self.marketChart = lambda pair, period="1d", start=time.time()-(week*1), end=1: self.fetch_chart_data(pair, period, start, end)
         self.marketTradeHist = lambda pair: self.api('returnTradeHistory',{'currencyPair':pair}) # NEEDS TO BE FIXED ON Poloniex
 
+    #####################
+    # Cutom Api Function #
+    #####################
+    def api(self, command, args={}):
+        """
+        returns 'False' if invalid command or if no APIKey or Secret is specified (if command is "private")
+        returns {"error":"<error message>"} if API error
+        """
+        if command in PUBLIC_COMMANDS:
+            url = 'https://api.hitbtc.com/api/2/public/'
+            args['command'] = command
+            ret = urlopen(Request(url + urlencode(args)))
+            return json.loads(ret.read().decode(encoding='UTF-8'))
+        else:
+            return False
+
     def fetch_tickers(self):
         self.tickers = self.api.fetch_tickers()
 
@@ -84,16 +97,46 @@ class Hitbtc:
 
     def fetch_chart_data(self, pair, period, start, end):
 
+        # ez itt lehet, hogy kurvaszar, quoteVolume vagy volume?
+        feature_names_list = ["date", "open", "high", "low", "close", "quoteVolume"]
         periods_dict = {
             86400: "1d",
             300: "5m",
             1800: "30m"
         }
 
-        period = periods_dict[period]
+        string_period = periods_dict[period]
 
-        feature_names_list = ["timestamp", "open", "max", "min", "close", "quoteVolume"]
-        raw_ohlcv = self.api.fetchOhlcv(pair, period, start, end)
-        parsed_ohlcv = list(map(lambda day: {feature_names_list[i]: feature for i, feature in enumerate(day)}, raw_ohlcv))
+        # hitbtc has rate limit 1000
+        # start/end values grouped by 1000 requests
+        # 1000 * 300(5min) in seconds the biggest timespan
+        if end > 1000:
+            parsed_ohlcv = []
+            desired_limit = (end - start)/period
+            number_of_requests = int(desired_limit // HITBTC_RATE_LIMIT)
+            REMAINDER = int(desired_limit % HITBTC_RATE_LIMIT)
+            current_start = start
+            while number_of_requests:
+                number_of_requests -= 1
+                current_raw_ohlcv = self.api.fetchOhlcv(pair, string_period, current_start, HITBTC_RATE_LIMIT)
+                current_parsed_ohlcv = list(map(lambda current_period: {feature_names_list[i]: feature for i, feature in enumerate(current_period)}, current_raw_ohlcv))
+                parsed_ohlcv.extend(current_parsed_ohlcv)
+                current_start = current_start + (HITBTC_RATE_LIMIT) * period
+                if number_of_requests == 0:
+                    if REMAINDER > 0:
+                        remainder_raw_ohlcv = self.api.fetch_ohlcv(pair, string_period, start, REMAINDER)
+                        current_parsed_ohlcv = list(map(
+                            lambda current_period: {feature_names_list[i]: feature for i, feature in
+                                                    enumerate(current_period)}, remainder_raw_ohlcv))
+                        parsed_ohlcv.extend(current_parsed_ohlcv)
+                    #     just to check if current_start and end matches
+                    #     current_start = current_start + (REMAINDER) * period
+                    #     print("Is difference 0?:", end-current_start)
+                    break
+        # this part is called when we need to define the top traded currencies, end is already transformed to limit
+        else:
+            # the returned timestamp need to be transformed
+            raw_ohlcv = self.api.fetch_ohlcv(pair, string_period, start, end)
+            parsed_ohlcv = list(map(lambda day: {feature_names_list[i]: feature for i, feature in enumerate(day)}, raw_ohlcv))
 
         return parsed_ohlcv

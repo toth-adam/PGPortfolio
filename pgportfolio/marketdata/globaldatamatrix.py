@@ -200,7 +200,8 @@ class HistoryManager:
             connection.close()
 
     def __fill_data(self, start, end, coin, cursor):
-        # ide kell beleirni, hogy 1000-es rate limittel lejojjon az adat
+        # hitBTC rol csak 1000 lepesenkent tudjuk letolteni az adatot
+        # @TODO: ezt bele kell irni a hitbtc.py fetch_chart_data()-ba
         chart = self._coin_list.get_chart_until_success(
             pair=self._coin_list.allActiveCoins.at[coin, 'pair'],
             start=start,
@@ -210,7 +211,8 @@ class HistoryManager:
                                             datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M')))
         for c in chart:
             if c["date"] > 0:
-                if c['weightedAverage'] == 0:
+                #NOTE: we always have 0 here, hitbtc API does not support wieghtedAverage
+                if "weightedAverage" not in c or c['weightedAverage'] == 0:
                     weightedAverage = c['close']
                 else:
                     weightedAverage = c['weightedAverage']
@@ -219,10 +221,21 @@ class HistoryManager:
                 if 'reversed_' in coin:
                     cursor.execute('INSERT INTO History VALUES (?,?,?,?,?,?,?,?,?)',
                         (c['date'],coin,1.0/c['low'],1.0/c['high'],1.0/c['open'],
-                        1.0/c['close'],c['quoteVolume'],c['volume'],
+                        1.0/c['close'],c['quoteVolume'],c['quoteVolume'],
                         1.0/weightedAverage))
                 else:
                     cursor.execute('INSERT INTO History VALUES (?,?,?,?,?,?,?,?,?)',
                                    (c['date'],coin,c['high'],c['low'],c['open'],
-                                    c['close'],c['volume'],c['quoteVolume'],
+                                    c['close'],c['quoteVolume'],c['quoteVolume'],
                                     weightedAverage))
+
+                # if 'reversed_' in coin:
+                #     cursor.execute('INSERT INTO History VALUES (?,?,?,?,?,?,?,?,?)',
+                #         (c['date'],coin,1.0/c['low'],1.0/c['high'],1.0/c['open'],
+                #         1.0/c['close'],c['quoteVolume'],c['volume'],
+                #         1.0/weightedAverage))
+                # else:
+                #     cursor.execute('INSERT INTO History VALUES (?,?,?,?,?,?,?,?,?)',
+                #                    (c['date'],coin,c['high'],c['low'],c['open'],
+                #                     c['close'],c['volume'],c['quoteVolume'],
+                #                     weightedAverage))
