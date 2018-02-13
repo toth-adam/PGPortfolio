@@ -39,8 +39,11 @@ class Trader:
         self._fake_ratio = config["input"]["fake_ratio"]
         self._asset_vector = np.zeros(self._coin_number+1)
 
-        self._last_omega = np.zeros((self._coin_number+1,))
-        self._last_omega[0] = 1.0
+        # self._last_omega = np.zeros((self._coin_number+1,))
+        # self._last_omega[0] = 1.0
+        temp_var = np.random.rand(self._coin_number+1)
+        self._last_omega = temp_var / np.sum(temp_var)
+        logging.info('Starting omega is: ' + str(self._last_omega))
 
         if self.__class__.__name__=="BackTest":
             # self._initialize_logging_data_frame(initial_BTC)

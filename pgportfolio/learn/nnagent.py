@@ -4,6 +4,7 @@ import tensorflow as tf
 import numpy as np
 from pgportfolio.constants import *
 import pgportfolio.learn.network as network
+# import time
 
 class NNAgent:
     def __init__(self, config, restore_dir=None, device="cpu"):
@@ -182,8 +183,10 @@ class NNAgent:
         w_t = self.__future_omega[:self.__net.input_num-1]  # rebalanced
         w_t1 = self.__net.output[1:self.__net.input_num]
         mu = 1 - tf.reduce_sum(tf.abs(w_t1[:, 1:]-w_t[:, 1:]), axis=1)*c
-        """
-        mu = 1-3*c+c**2
+
+        # TODO ellenőrzni hogy mekkora az eltérés a mu között!!!!!
+        '''
+        mu_rec = 1-3*c+c**2
 
         def recurse(mu0):
             factor1 = 1/(1 - c*w_t1[:, 0])
@@ -196,8 +199,9 @@ class NNAgent:
             return factor1*factor2
 
         for i in range(20):
-            mu = recurse(mu)
-        """
+            mu_rec = recurse(mu_rec)
+        '''
+
         return mu
 
     # the history is a 3d matrix, return a asset vector

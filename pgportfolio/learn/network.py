@@ -18,6 +18,7 @@ class NeuralNetWork:
         self.input_num = tf.placeholder(tf.int32, shape=[])
         self.input_tensor = tf.placeholder(tf.float32, shape=[None, feature_number, rows, columns])
         self.previous_w = tf.placeholder(tf.float32, shape=[None, rows])
+        # self.spread_vector = tf.placeholder(tf.float32, shape=[None, rows])  # placeholder a spreadnek
         self._rows = rows
         self._columns = columns
 
@@ -94,7 +95,7 @@ class CNN(NeuralNetWork):
                 self.add_layer_to_dict(layer["type"], network, weights=False)
             elif layer["type"] == "Output_WithW":
                 network = tflearn.flatten(network)
-                network = tf.concat([network,self.previous_w], axis=1)
+                network = tf.concat([network, self.previous_w], axis=1)
                 network = tflearn.fully_connected(network, self._rows+1,
                                                   activation="softmax",
                                                   regularizer=layer["regularizer"],
@@ -102,10 +103,14 @@ class CNN(NeuralNetWork):
             elif layer["type"] == "EIIE_Output_WithW":
                 width = network.get_shape()[2]
                 height = network.get_shape()[1]
+                # TODO ellenorizni hogy a height valóban az assetek száma
+                # print(height)  # asset számnyinak kell lennie
                 features = network.get_shape()[3]
                 network = tf.reshape(network, [self.input_num, int(height), 1, int(width*features)])
                 w = tf.reshape(self.previous_w, [-1, int(height), 1, 1])
+                # spread_vect = self.spread_vector  # valószínű itt is kell egy reshape a -1 itt a batch size
                 network = tf.concat([network, w], axis=3)
+                # network = tf.concat([network, spread_vect], axis=3)  # itt van hozzáfűzve
                 network = tflearn.layers.conv_2d(network, 1, [1, 1], padding="valid",
                                                  regularizer=layer["regularizer"],
                                                  weight_decay=layer["weight_decay"])

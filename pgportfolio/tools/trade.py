@@ -6,7 +6,11 @@ from pgportfolio.tools.configprocess import parse_time
 from pgportfolio.constants import *
 from pgportfolio.tools.data import get_volume_forward
 from time import time
+#import time
 
+
+# mu_list = []
+# mu_init_list = []
 
 def get_coin_name_list(config, online):
     """
@@ -50,6 +54,19 @@ def calculate_pv_after_commission(w1, w0, commission_rate):
             (2 * commission_rate - commission_rate ** 2) *
             np.sum(np.maximum(w0[1:] - mu1*w1[1:], 0))) / \
             (1 - commission_rate * w1[0])
+    # mu klonbseg
+    # w1_np = np.asarray(w1)
+    # w0_np = np.asarray(w0)
+    # mu_init = 1 - np.sum(np.absolute(w1_np-w0_np)) * commission_rate
+    # mu_list.append(mu1)
+    # mu_init_list.append(mu_init)
+    # if (len(mu_list) % 50 == 0) and len(mu_list) > 0:
+    #     diff = np.absolute(np.asarray(mu_init_list) - np.asarray(mu_list))
+    #     print("Különbség átlag: ", np.mean(diff))
+    #     print("Maximális különbség: ", np.max(diff))
+    #     print("A mu és a különbség hányadosainak átlaga: ", np.mean(diff / np.asarray(mu_list)))
+    #     print("VEGE")
+    #     time.sleep(10)
     return mu1
 
 
