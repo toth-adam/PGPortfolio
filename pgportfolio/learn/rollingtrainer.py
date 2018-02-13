@@ -53,7 +53,7 @@ class RollingTrainer(TraderTrainer):
         steps = self.rolling_training_steps
         if steps > 0:
             self._matrix.append_experience(online_w)
-            for i in range(steps):
+            for _ in range(steps):
                 x, y, last_w, w = self.next_batch()
                 self._agent.train(x, y, last_w, w)
             self.__rolling_logging()

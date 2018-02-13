@@ -139,7 +139,8 @@ class TraderTrainer:
         batch_y = batch["y"]
         batch_last_w = batch["last_w"]
         batch_w = batch["setw"]
-        return batch_input, batch_y, batch_last_w, batch_w
+        # batch_spread_vector = batch["spread"]  # itt kellene visszatérni a spread vektorral
+        return batch_input, batch_y, batch_last_w, batch_w  # , batch_spread_vector
 
     def __init_tensor_board(self, log_file_dir):
         tf.summary.scalar('benefit', self._agent.portfolio_value)
