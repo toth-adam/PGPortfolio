@@ -18,10 +18,10 @@
 
   "input":{
     "window_size":31,
-    "coin_number":5,
-    "global_period":1800,
+    "coin_number":11,
+    "global_period":7200,
     "feature_number":3,
-    "test_portion":0.03,
+    "test_portion":0.043,
     "online":false,
     "start_date":"2016/02/19",
     "end_date":"2018/02/19",

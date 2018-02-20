@@ -113,32 +113,47 @@ class Hitbtc:
         # start/end values grouped by 1000 requests
         # 1000 * 300(5min) in seconds the biggest timespan
         if end > 1000:
-            parsed_ohlcv = []
+            parsed_ohlcvs = []
             desired_limit = (end - start)/period
             number_of_requests = int(desired_limit // HITBTC_RATE_LIMIT)
             REMAINDER = int(desired_limit % HITBTC_RATE_LIMIT)
-            current_start = start
             while number_of_requests:
                 number_of_requests -= 1
-                current_raw_ohlcv = self.api.fetchOhlcv(pair, string_period, current_start, HITBTC_RATE_LIMIT)
-                current_parsed_ohlcv = list(map(lambda current_period: {feature_names_list[i]: feature for i, feature in enumerate(current_period)}, current_raw_ohlcv))
-                parsed_ohlcv.extend(current_parsed_ohlcv)
-                current_start = current_start + (HITBTC_RATE_LIMIT) * period
+                if len(parsed_ohlcvs) == 0:
+                    current_raw_ohlcv = self.api.fetch_ohlcv(pair, string_period, start, HITBTC_RATE_LIMIT)
+                else:
+                    start_timestamp = int(parsed_ohlcvs[-1]["date"]) + period
+                    current_raw_ohlcv = self.api.fetch_ohlcv(pair, string_period, start_timestamp, HITBTC_RATE_LIMIT)
+
+                current_parsed_ohlcvs = list(map(lambda current_period:
+                                                {feature_names_list[i]: feature for i, feature in enumerate(current_period)},
+                                                current_raw_ohlcv))
+                parsed_ohlcvs = parsed_ohlcvs + current_parsed_ohlcvs
                 if number_of_requests == 0:
                     if REMAINDER > 0:
-                        remainder_raw_ohlcv = self.api.fetch_ohlcv(pair, string_period, current_start, REMAINDER)
-                        current_parsed_ohlcv = list(map(
+                        start_timestamp = int(parsed_ohlcvs[-1]["date"]) + period
+                        remainder_raw_ohlcv = self.api.fetch_ohlcv(pair, string_period, start_timestamp, REMAINDER)
+                        current_parsed_ohlcvs = list(map(
                             lambda current_period: {feature_names_list[i]: feature for i, feature in
                                                     enumerate(current_period)}, remainder_raw_ohlcv))
-                        parsed_ohlcv.extend(current_parsed_ohlcv)
+                        parsed_ohlcvs = parsed_ohlcvs + current_parsed_ohlcvs
                     #     just to check if current_start and end matches
                     #     current_start = current_start + (REMAINDER) * period
                     #     print("Is difference 0?:", end-current_start)
+
+                        lista = {}
+                        for d in parsed_ohlcvs:
+                            if d["date"] not in lista:
+                                lista[d["date"]] = 1
+
+                        print(len(lista))
+                        print("done")
+
                     break
         # this part is called when we need to define the top traded currencies, end is already transformed to limit
         else:
             # the returned timestamp need to be transformed
             raw_ohlcv = self.api.fetch_ohlcv(pair, string_period, start, end)
-            parsed_ohlcv = list(map(lambda day: {feature_names_list[i]: feature for i, feature in enumerate(day)}, raw_ohlcv))
+            parsed_ohlcvs = list(map(lambda day: {feature_names_list[i]: feature for i, feature in enumerate(day)}, raw_ohlcv))
 
-        return parsed_ohlcv
+        return parsed_ohlcvs

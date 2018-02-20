@@ -15,7 +15,7 @@ class CoinList(object):
         self.volume_average_days = volume_average_days
         self.volume_forward = volume_forward
 
-        self.is_polo = 0
+        self.is_polo = 1
 
         if self.is_polo:
             coins, pairs, volumes, prices = self.poloniex_coin_list()
