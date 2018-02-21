@@ -2,13 +2,40 @@ import json
 from urllib.request import Request, urlopen
 import numpy as np
 import time
+import aiohttp
+import asyncio
 
 base_url = "https://api.hitbtc.com/api/2/public/ticker/"
 pair_list = ["ETHBTC", "BCHBTC", "DASHBTC", "XMRBTC", "XRPBTC", "LTCBTC", "BCNBTC", "ZECBTC",
              "XEMBTC", "XDNBTC", "ETCBTC", "WAXBTC", "DOGEBTC", "ORMEBTC", "LSKBTC", "EOSBTC",
              "ARDRBTC"]
+url_list = [base_url + pair for pair in pair_list]
 
-async  def get_data(list_of_pairs):
+async def call_url(url):
+    print('Starting {}'.format(url))
+    response = await aiohttp.get(url)
+    data = await json.loads(response.read().decode(encoding='UTF-8'))
+    print('Ending {}'.format(url))
+    return data
+
+futures = [call_url(url) for url in url_list]
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(asyncio.wait(futures))
+
+print(futures)
+
+
+
+
+
+
+
+
+
+
+"""
+async def get_data(list_of_pairs):
     actual_data = []
     for pair in list_of_pairs:
         actual_url = base_url + pair
@@ -35,3 +62,4 @@ for iter_num in range(50):
     np.save("D:/RL/portfolio/tickers_data_" + str(iter_num + 1), np.array(data_container))
     print("LEFUTOTT A " + str(iter_num + 1) + " ITERÁCIÓ")
 print("-------------------------VÉGE-------------------------")
+"""
