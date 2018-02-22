@@ -7,6 +7,8 @@ import sqlite3
 from datetime import datetime
 from dateutil import parser
 import numpy as np
+import asyncio
+from aiohttp import ClientSession
 import matplotlib.pyplot as plt
 from time import sleep
 
@@ -52,6 +54,12 @@ class RelativePrice(object):
                 "symbol": "XRPBTC"
             }
         ])
+
+        loop = asyncio.get_event_loop()
+        future = asyncio.Future()
+        loop.run_until_complete(self.fetch_ticker(future))
+        a = future.result()
+        loop.close()
 
         # Fetching candles
         for pair in self.pairs:
@@ -236,13 +244,25 @@ class RelativePrice(object):
     ### Communication stuff ###
     ###########################
     '''
-    def fetch_ticker(self):
-        pass
+    async def fetch_ticker(self, future):
+        params = {
+
+        }
+        tasks = []
+        async with ClientSession() as session:
+            for pair in self.pairs:
+                url = 'https://api.hitbtc.com/api/2/public/ticker/' + str(pair)
+                task = asyncio.ensure_future(self.async_fetch(session, url))
+                tasks.append(task)
+
+            responses = await asyncio.gather(*tasks)
+
+            future.set_result(responses)
 
     def fetch_trades(self, pair=None, limit=20, sort='DESC', command='trades', timestamp=None):
         assert timestamp is not None, 'Timestamp should be given as param'
         assert pair is not None, 'Pair should be given as param'
-        return self._api(pair, {
+        return self._fetch(pair, {
             'limit': limit,
             'command': command,
             'sort': sort,
@@ -251,13 +271,18 @@ class RelativePrice(object):
         })
 
     def fetch_candles(self, pair, limit=10, period='M30', command='candles'):
-        return self._api(pair, {
+        return self._fetch(pair, {
             "limit": limit,
             "period": period,
             "command": command
         })
 
-    def _api(self, pair, args={}):
+    async def async_fetch(self, session, url, params={}):
+        async with session.get(url, params=params) as response:
+            result = await response.json()
+            return result
+
+    def _fetch(self, pair, args={}):
         assert 'command' in args, 'There is no command in args'
         assert args['command'], 'Command in error is falsy'
 
