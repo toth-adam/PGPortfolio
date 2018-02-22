@@ -10,7 +10,7 @@ import numpy as np
 import asyncio
 from aiohttp import ClientSession
 import matplotlib.pyplot as plt
-from time import sleep
+import time
 
 
 class RelativePrice(object):
@@ -20,7 +20,9 @@ class RelativePrice(object):
         assert self.window_size % 2 == 0, 'Should be even'
         self.is_data_base = False
         self.endpoints = ['candles', 'trades']
-        self.pairs = ['XRPBTC', 'XMRBTC']
+        self.pairs = ["DASHBTC", "XMRBTC", "XRPBTC", "LTCBTC", "BCNBTC", "ZECBTC", "XEMBTC", "XDNBTC",
+                      "ETCBTC", "WAXBTC", "DOGEBTC", "ORMEBTC", "LSKBTC", "EOSBTC", "ARDRBTC"]
+        self.pairs_test_for_plot = self.pairs[:4]
         self.candles_memory = {}
         self.trades_memory = {}
         self.request_counter = 0
@@ -28,41 +30,29 @@ class RelativePrice(object):
 
         self.init_data_base()
 
-        self.persist_tickers([
-            {
-                "ask": "0.00009215",
-                "bid": "0.00009209",
-                "last": "0.00009206",
-                "open": "0.00009191",
-                "low": "0.00009000",
-                "high": "0.00009368",
-                "volume": "34269633",
-                "volumeQuote": "3141.86360431",
-                "timestamp": "2018-02-21T20:36:59.595Z",
-                "symbol": "XRPBTC"
-            },
-            {
-                "ask": "0.00009206",
-                "bid": "0.00009205",
-                "last": "0.00009207",
-                "open": "0.00009102",
-                "low": "0.00009000",
-                "high": "0.00009368",
-                "volume": "34159592",
-                "volumeQuote": "3131.92561035",
-                "timestamp": "2018-02-21T21:46:57.608Z",
-                "symbol": "XRPBTC"
-            }
-        ])
-
-        loop = asyncio.get_event_loop()
-        future = asyncio.Future()
-        loop.run_until_complete(self.fetch_ticker(future))
-        a = future.result()
-        loop.close()
+        # counter = 0
+        # tickers = []
+        # start = time.time()
+        # loop = asyncio.get_event_loop()
+        # while counter < 60:
+        #     future = asyncio.Future()
+        #     loop.run_until_complete(self.fetch_ticker(future))
+        #     a = future.result()
+        #     tickers.extend(a)
+        #     counter += 1
+        #     while datetime.now().microsecond < 970000:
+        #         pass
+        #
+        # loop.close()
+        #
+        # end = time.time()
+        #
+        # print("60 call with 1 sec delay took: ", end - start)
+        #
+        # self.persist_tickers(tickers)
 
         # Fetching candles
-        for pair in self.pairs:
+        for pair in self.pairs_test_for_plot:
             ret = self.fetch_candles(pair)
             self.candles_memory[pair] = ret
 
@@ -99,9 +89,10 @@ class RelativePrice(object):
         figure = plt.figure()
         half_window = int(self.window_size / 2)
         order_types = ['buy', 'sell']
-        plot_matrix = int(str(len(self.pairs)) + "21")
+        plot_matrix = int(str(len(self.pairs_test_for_plot)) + "21")
 
-        for i, pair in enumerate(self.pairs):
+        # only_first_5_plot = self.pairs[:]
+        for i, pair in enumerate(self.pairs_test_for_plot):
             for y, side in enumerate(order_types):
                 fig = figure.add_subplot((plot_matrix + i * 2 + y))
                 fig.set_title(pair + ' ' + side)
@@ -250,7 +241,7 @@ class RelativePrice(object):
         }
         tasks = []
         async with ClientSession() as session:
-            for pair in self.pairs:
+            for pair in self.pairs_test_for_plot:
                 url = 'https://api.hitbtc.com/api/2/public/ticker/' + str(pair)
                 task = asyncio.ensure_future(self.async_fetch(session, url))
                 tasks.append(task)
@@ -259,7 +250,7 @@ class RelativePrice(object):
 
             future.set_result(responses)
 
-    def fetch_trades(self, pair=None, limit=20, sort='DESC', command='trades', timestamp=None):
+    def fetch_trades(self, pair=None, limit=5, sort='DESC', command='trades', timestamp=None):
         assert timestamp is not None, 'Timestamp should be given as param'
         assert pair is not None, 'Pair should be given as param'
         return self._fetch(pair, {
