@@ -1,12 +1,13 @@
 import os
 import sqlite3
 from dateutil import parser
+import datetime
 
 
 class DatabaseHandler(object):
-
-    def __init__(self):
+    def __init__(self, path="database/hitbtc_data.db"):
         self.is_data_base = False
+        self.path = path
         self._init_data_base()
 
 
@@ -16,7 +17,9 @@ class DatabaseHandler(object):
     ###########################
     '''
     def _init_data_base(self):
-        connection = sqlite3.connect(os.path.join(os.getcwd(), "database/hitbtc_data.db"))
+        print('-----------------------------------------------------------------')
+        print(datetime.datetime.now().isoformat(), '  DB connection initialization...')
+        connection = sqlite3.connect(os.path.join(os.getcwd(), self.path))
         try:
             cursor = connection.cursor()
             cursor.execute('CREATE TABLE IF NOT EXISTS Candles (timestamp INTEGER,'
@@ -51,8 +54,9 @@ class DatabaseHandler(object):
         }
 
     def persist_tickers(self, tickers):
+        print(datetime.datetime.now().isoformat(), '  Persisting tickers...')
         assert len(tickers) > 0, 'Tickers list length shouldnt be 0'
-        connection = sqlite3.connect(os.path.join(os.getcwd(), "database/hitbtc_data.db"))
+        connection = sqlite3.connect(os.path.join(os.getcwd(), self.path))
         cursor = connection.cursor()
         try:
             for ticker in tickers:
