@@ -55,7 +55,9 @@ class DatabaseHandler(object):
 
     def persist_tickers(self, tickers):
         print(datetime.datetime.now().isoformat(), '  Persisting tickers...')
-        assert len(tickers) > 0, 'Tickers list length shouldnt be 0'
+        if len(tickers) == 0:
+            print('No ticker value')
+            return
         connection = sqlite3.connect(os.path.join(os.getcwd(), self.path))
         cursor = connection.cursor()
         try:
