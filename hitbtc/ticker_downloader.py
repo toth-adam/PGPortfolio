@@ -2,7 +2,7 @@ from aiohttp import ClientSession
 import asyncio
 import time
 from datetime import datetime
-from hitbtc.database_handler import DatabaseHandler
+from database_handler import DatabaseHandler
 import threading
 import traceback
 
@@ -89,4 +89,5 @@ class TickerDownloader(object):
 symbols = ["ETHBTC", "DASHBTC", "XMRBTC", "XRPBTC", "LTCBTC", "BCNBTC", "ZECBTC", "XEMBTC", "XDNBTC",
                       "ETCBTC", "WAXBTC", "DOGEBTC", "ORMEBTC", "LSKBTC", "EOSBTC", "ARDRBTC"]
 
-a = TickerDownloader(pairs=symbols)
+if __name__ == "__main__":
+    TickerDownloader(pairs=symbols)
