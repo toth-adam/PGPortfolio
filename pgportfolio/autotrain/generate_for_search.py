@@ -16,10 +16,10 @@ global_period = [900, 1800, 7200, 14400]
 
 def add_packages(config, repeat=1):
     train_dir = "train_package"
-    package_dir = path.realpath(__file__).replace('pgportfolio/autotrain/generate.pyc',train_dir)\
-        .replace("pgportfolio\\autotrain\\generate.pyc", train_dir)\
-                  .replace('pgportfolio/autotrain/generate.py',train_dir)\
-        .replace("pgportfolio\\autotrain\\generate.py", train_dir)
+    package_dir = path.realpath(__file__).replace('pgportfolio/autotrain/generate_for_search.pyc',train_dir)\
+        .replace("pgportfolio\\autotrain\\generate_for_search.pyc", train_dir)\
+                  .replace('pgportfolio/autotrain/generate_for_search.py',train_dir)\
+        .replace("pgportfolio\\autotrain\\generate_for_search.py", train_dir)
     all_subdir = [int(s) for s in os.listdir(package_dir) if os.path.isdir(package_dir+"/"+s)]
     if all_subdir:
         max_dir_num = max(all_subdir)
@@ -41,12 +41,12 @@ def add_packages(config, repeat=1):
 
         # random értékek
         if i % 3 == 0:
-            l_rate = np.random.uniform(learning_rate[0], learning_rate[1], size=1)
-            b_size = np.random.randint(batch_size[0], batch_size[1], size=1)
-            w_size = np.random.randint(window_size[0], window_size[1], size=1)
-            c_number = np.random.randint(coin_number[0], coin_number[1], size=1)
-            r_t_steps = np.random.randint(rolling_training_steps[0], rolling_training_steps[1], size=1)
-            g_period = np.random.choice(global_period)
+            l_rate = float(np.random.uniform(learning_rate[0], learning_rate[1], size=1))
+            b_size = int(np.random.randint(batch_size[0], batch_size[1], size=1))
+            w_size = int(np.random.randint(window_size[0], window_size[1], size=1))
+            c_number = int(np.random.randint(coin_number[0], coin_number[1], size=1))
+            r_t_steps = int(np.random.randint(rolling_training_steps[0], rolling_training_steps[1], size=1))
+            g_period = int(np.random.choice(global_period))
         # megnézni a configot hogy mi a tosz az elnevezések
         config["training"]["learning_rate"] = l_rate
         config["trading"]["learning_rate"] = l_rate

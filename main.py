@@ -64,7 +64,7 @@ def main():
 
     # genberate for hyperparameter search
     elif options.mode == "generate_for_search":
-        import pgportfolio.autotrain.generate_for_hyperpar as generate
+        import pgportfolio.autotrain.generate_for_search as generate
         logging.basicConfig(level=logging.INFO)
         generate.add_packages(load_config(), int(options.repeat))
 
