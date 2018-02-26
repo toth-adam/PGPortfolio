@@ -31,8 +31,8 @@ class AssetThread(threading.Thread):
             time.sleep(delay - run_time)
 
 base_url = "https://api.hitbtc.com/api/2/public/ticker/"
-pair_list = ["ETHBTC" , "BCHBTC"] # , "DASHBTC", "XMRBTC", "XRPBTC", "LTCBTC", "BCNBTC", "ZECBTC", "XEMBTC", "XDNBTC",
-             # "ETCBTC", "WAXBTC", "DOGEBTC", "ORMEBTC", "LSKBTC", "EOSBTC", "ARDRBTC"]
+pair_list = ["ETHBTC" , "BCHBTC", "DASHBTC", "XMRBTC", "XRPBTC", "LTCBTC", "BCNBTC", "ZECBTC", "XEMBTC", "XDNBTC",
+             "ETCBTC", "WAXBTC", "DOGEBTC", "ORMEBTC", "LSKBTC", "EOSBTC", "ARDRBTC"]
 
 # Create new threads
 threads_list = []
