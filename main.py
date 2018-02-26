@@ -61,6 +61,13 @@ def main():
         import pgportfolio.autotrain.generate as generate
         logging.basicConfig(level=logging.INFO)
         generate.add_packages(load_config(), int(options.repeat))
+
+    # genberate for hyperparameter search
+    elif options.mode == "generate_for_search":
+        import pgportfolio.autotrain.generate_for_hyperpar as generate
+        logging.basicConfig(level=logging.INFO)
+        generate.add_packages(load_config(), int(options.repeat))
+
     elif options.mode == "download_data":
         from pgportfolio.marketdata.datamatrices import DataMatrices
         with open("./pgportfolio/net_config.json") as file:
