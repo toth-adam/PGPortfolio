@@ -27,18 +27,26 @@ def add_packages(config, repeat=1):
         max_dir_num = 0
     indexes = []
 
+    l_rate = None
+    b_size = None
+    w_size = None
+    c_number = None
+    r_t_steps = None
+    g_period = None
+
     for i in range(repeat):
         max_dir_num += 1
         directory = package_dir+"/"+str(max_dir_num)
         config["random_seed"] = i
 
         # random értékek
-        l_rate = np.random.uniform(learning_rate[0], learning_rate[1], size=1)
-        b_size = np.random.randint(batch_size[0], batch_size[1], size=1)
-        w_size = np.random.randint(window_size[0], window_size[1], size=1)
-        c_number = np.random.randint(coin_number[0], coin_number[1], size=1)
-        r_t_steps = np.random.randint(rolling_training_steps[0], rolling_training_steps[1], size=1)
-        g_period = np.random.choice(global_period)
+        if i % 3 == 0:
+            l_rate = np.random.uniform(learning_rate[0], learning_rate[1], size=1)
+            b_size = np.random.randint(batch_size[0], batch_size[1], size=1)
+            w_size = np.random.randint(window_size[0], window_size[1], size=1)
+            c_number = np.random.randint(coin_number[0], coin_number[1], size=1)
+            r_t_steps = np.random.randint(rolling_training_steps[0], rolling_training_steps[1], size=1)
+            g_period = np.random.choice(global_period)
         # megnézni a configot hogy mi a tosz az elnevezések
         config["training"]["learning_rate"] = l_rate
         config["trading"]["learning_rate"] = l_rate
