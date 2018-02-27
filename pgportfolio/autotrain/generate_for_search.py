@@ -8,11 +8,13 @@ import numpy as np
 # -tól -ig
 learning_rate = [0.0001, 0.0005]
 batch_size = [60, 150]
+pretrain_steps = [25000, 100000]
 window_size = [20, 40]
 coin_number = [5, 11]
 rolling_training_steps = [40, 120]
 # egyet választani
 global_period = [900, 1800, 7200, 14400]
+repeat = 2
 
 def add_packages(config, repeat=1):
     train_dir = "train_package"
@@ -29,6 +31,7 @@ def add_packages(config, repeat=1):
 
     l_rate = None
     b_size = None
+    p_steps = None
     w_size = None
     c_number = None
     r_t_steps = None
@@ -40,9 +43,10 @@ def add_packages(config, repeat=1):
         config["random_seed"] = i
 
         # random értékek
-        if i % 3 == 0:
+        if i % repeat == 0:
             l_rate = float(np.random.uniform(learning_rate[0], learning_rate[1], size=1))
             b_size = int(np.random.randint(batch_size[0], batch_size[1], size=1))
+            p_steps = int(np.random.randint(pretrain_steps[0], pretrain_steps[1], size=1))
             w_size = int(np.random.randint(window_size[0], window_size[1], size=1))
             c_number = int(np.random.randint(coin_number[0], coin_number[1], size=1))
             r_t_steps = int(np.random.randint(rolling_training_steps[0], rolling_training_steps[1], size=1))
@@ -51,6 +55,7 @@ def add_packages(config, repeat=1):
         config["training"]["learning_rate"] = l_rate
         config["trading"]["learning_rate"] = l_rate
         config["training"]["batch_size"] = b_size
+        config["training"]["steps"] = p_steps
         config["input"]["window_size"] = w_size
         config["input"]["coin_number"] = c_number
         config["trading"]["rolling_training_steps"] = r_t_steps
