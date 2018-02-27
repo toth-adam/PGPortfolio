@@ -11,10 +11,10 @@ batch_size = [60, 150]
 pretrain_steps = [25000, 100000]
 window_size = [20, 40]
 coin_number = [5, 11]
-rolling_training_steps = [40, 120]
+rolling_training_steps = [20, 120]
 # egyet választani
 global_period = [900, 1800, 7200, 14400]
-repeat = 2
+same_repeat = 2
 
 def add_packages(config, repeat=1):
     train_dir = "train_package"
@@ -40,10 +40,10 @@ def add_packages(config, repeat=1):
     for i in range(repeat):
         max_dir_num += 1
         directory = package_dir+"/"+str(max_dir_num)
-        config["random_seed"] = i
+        config["random_seed"] = int(np.random.randint(0, 1000000, size=1))
 
         # random értékek
-        if i % repeat == 0:
+        if i % same_repeat == 0:
             l_rate = float(np.random.uniform(learning_rate[0], learning_rate[1], size=1))
             b_size = int(np.random.randint(batch_size[0], batch_size[1], size=1))
             p_steps = int(np.random.randint(pretrain_steps[0], pretrain_steps[1], size=1))
