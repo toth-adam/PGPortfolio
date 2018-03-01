@@ -6,14 +6,14 @@ from os import path
 import numpy as np
 
 # -tól -ig
-learning_rate = [0.0001, 0.0005]
-batch_size = [60, 150]
-pretrain_steps = [25000, 100000]
+learning_rate = [0.00005, 0.0005]
+batch_size = [60, 120]
+pretrain_steps = [40000, 100000]
 window_size = [20, 40]
-coin_number = [5, 11]
-rolling_training_steps = [20, 120]
+coin_number = [6, 11]
+rolling_training_steps = [30, 100]
 # egyet választani
-global_period = [900, 1800, 7200, 14400]
+global_period = [1800, 7200, 14400]
 same_repeat = 2
 
 def add_packages(config, repeat=1):
@@ -44,7 +44,8 @@ def add_packages(config, repeat=1):
 
         # random értékek
         if i % same_repeat == 0:
-            l_rate = float(np.random.uniform(learning_rate[0], learning_rate[1], size=1))
+            l_rate = np.random.uniform(learning_rate[0], learning_rate[1], size=1)
+            l_rate = float(np.round(l_rate, 5))
             b_size = int(np.random.randint(batch_size[0], batch_size[1], size=1))
             p_steps = int(np.random.randint(pretrain_steps[0], pretrain_steps[1], size=1))
             w_size = int(np.random.randint(window_size[0], window_size[1], size=1))
