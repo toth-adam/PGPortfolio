@@ -21,15 +21,15 @@
     "coin_number":11,
     "global_period":1800,
     "feature_number":3,
-    "test_portion":0.042,
+    "test_portion":0.08,
     "online":false,
-    "start_date":"2015/07/01",
-    "end_date":"2017/07/01",
+    "start_date":"2016/02/19",
+    "end_date":"2018/02/19",
     "volume_average_days":30
   },
 
   "trading":{
-    "trading_consumption":0.0025,
+    "trading_consumption":0.003,
     "rolling_training_steps":85,
     "learning_rate":0.00028,
     "buffer_biased":5e-5

@@ -146,7 +146,19 @@ class HistoryManager:
         else:
             coins = list(self._coin_list.topNVolume(n=self._coin_number).index)
         logging.debug("Selected coins are: "+str(coins))
-        return coins
+        return [
+            "reversed_USDT",
+            "ETH",
+            "XRP",
+            "BCH",
+            "LTC",
+            "XMR",
+            "DASH",
+            "ETC",
+            "XEM",
+            "NXT"
+        ]
+        # return coins
 
     def __checkperiod(self, period):
         if period == FIVE_MINUTES:
