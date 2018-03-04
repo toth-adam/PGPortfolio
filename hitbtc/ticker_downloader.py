@@ -4,12 +4,13 @@ import time
 from datetime import datetime
 from database_handler import DatabaseHandler
 import threading
+import time
 import traceback
 
 # DB worker instance
 def db_worker(tickers):
     """thread worker function"""
-    dbh = DatabaseHandler('../database/hitbtc_data.db')
+    dbh = DatabaseHandler('/media/usb/hitbtc_data.db')
     dbh.persist_tickers(tickers=tickers)
     return
 
@@ -41,13 +42,13 @@ class TickerDownloader(object):
             if should_count:
                 counter += 1
 
-            if len(tickers) > 0 and time.time() - last_save > db_save_sec:
+            if len(tickers) > 0 and time.time() - last_save >= db_save_sec:
                 last_save = time.time()
                 threading.Thread(target=db_worker, args=(tickers,)).start()
                 tickers = []
 
             while datetime.now().microsecond < 970000:
-                pass
+                time.sleep(0.001)
 
         loop.close()
 
