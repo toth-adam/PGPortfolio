@@ -10,11 +10,12 @@ learning_rate = [0.00005, 0.0005]
 batch_size = [60, 120]
 pretrain_steps = [40000, 100000]
 window_size = [20, 40]
-coin_number = [6, 11]
+coin_number = [10, 11]
 rolling_training_steps = [30, 100]
 # egyet választani
-global_period = [1800, 7200, 14400]
-same_repeat = 2
+global_period = [7200]
+# global_period = [900]
+same_repeat = 3
 
 def add_packages(config, repeat=1):
     train_dir = "train_package"

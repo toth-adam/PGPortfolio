@@ -127,8 +127,10 @@ class NNAgent:
         return loss_tensor
 
     def init_train(self, learning_rate, decay_steps, decay_rate, training_method):
-        learning_rate = tf.train.exponential_decay(learning_rate, self.__global_step,
-                                                   decay_steps, decay_rate, staircase=True)
+        # ezt kivettük mert a learning rate nem változik igy, nem decayel
+        # learning_rate = tf.train.exponential_decay(learning_rate, self.__global_step,
+        #                                            decay_steps, decay_rate, staircase=True)
+
         if training_method == 'GradientDescent':
             train_step = tf.train.GradientDescentOptimizer(learning_rate).\
                          minimize(self.__loss, global_step=self.__global_step)
